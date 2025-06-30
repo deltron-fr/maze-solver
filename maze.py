@@ -1,5 +1,5 @@
 from cell import Cell
-import time
+import time, random
 
 class Maze:
     def __init__(
@@ -11,7 +11,11 @@ class Maze:
             cell_size_x,
             cell_size_y,
             win=None,
+            seed=None
         ):
+        if seed:
+            random.seed(seed)
+
         self.__x1 = x1
         self.__y1 = y1
         self.__num_rows = num_rows
@@ -20,20 +24,23 @@ class Maze:
         self.__cell_size_y = cell_size_y
         self.__win = win
         self.__cells = []
+
         self.__create_cells()
+        self.__break_entrance_and_exit()
+        self.__break_walls_r(0, 0)
+
 
     def __create_cells(self):
-        if self.__win is None:
-            return
-
         for i in range(self.__num_cols):
             temp_list = []
             for j in range(self.__num_rows):
-                c = Cell(self.__win)
-                self.__draw_cell(i, j)
-                temp_list.append(c)
-
+                temp_list.append(Cell(self.__win))
+                
             self.__cells.append(temp_list)
+                
+        for i in range(self.__num_cols):
+            for j in range(self.__num_rows):
+                self.__draw_cell(i, j)
 
     def __draw_cell(self, i, j):
         if self.__win is None:
@@ -45,8 +52,7 @@ class Maze:
         x_right = x_left + self.__cell_size_x
         y_bottom = y_top + self.__cell_size_y
 
-        c = Cell(self.__win)
-        c.draw(x_left, y_top, x_right, y_bottom)
+        self.__cells[i][j].draw(x_left, y_top, x_right, y_bottom)
 
         self.__animate()
 
@@ -56,4 +62,64 @@ class Maze:
         self.__win.redraw()
         time.sleep(0.05)
 
+    def __break_entrance_and_exit(self):
+        self.__cells[0][0].has_top_wall = False
+        self.__draw_cell(0, 0)
+        self.__cells[self.__num_cols-1][self.__num_rows-1].has_bottom_wall = False
+        self.__draw_cell(self.__num_cols-1, self.__num_rows-1)
 
+    
+    def __break_walls_r(self, i, j):
+        self.__cells[i][j].visited = True
+
+        while True:
+            temp_list = []
+
+            if i > 0:
+                if self.__cells[i - 1][j].visited  == False:
+                    temp_list.append([i - 1,j])
+
+            if j > 0:
+                if self.__cells[i][j - 1].visited  == False:
+                    temp_list.append([i,j - 1])
+
+            if i < (self.__num_cols - 1):
+                 if self.__cells[i + 1][j].visited  == False:
+                    temp_list.append([i + 1,j])
+
+            if j < (self.__num_rows - 1):
+                if self.__cells[i][j + 1].visited  == False:
+                    temp_list.append([i,j + 1])
+
+            if not temp_list:
+                self.__draw_cell(i, j)
+                return
+            
+            else:
+                random_value = random.choice(temp_list)
+            
+            chosen_i = random_value[0]
+            chosen_j = random_value[1]
+
+            if i < chosen_i:
+                self.__cells[i][j].has_right_wall = False
+                self.__cells[chosen_i][chosen_j].has_left_wall = False
+
+            if j < chosen_j:
+                self.__cells[i][j].has_bottom_wall = False
+                self.__cells[chosen_i][chosen_j].has_top_wall = False
+
+            if i > chosen_i:
+                self.__cells[i][j].has_left_wall = False
+                self.__cells[chosen_i][chosen_j].has_right_wall = False
+
+            if j > chosen_j:
+                self.__cells[i][j].has_top_wall = False
+                self.__cells[chosen_i][chosen_j].has_bottom_wall = False
+
+            self.__break_walls_r(chosen_i, chosen_j)
+
+        
+                
+
+                
