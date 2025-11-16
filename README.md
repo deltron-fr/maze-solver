@@ -2,13 +2,7 @@
 
 A small Python project that generates and visually solves mazes using Tkinter.
 
-<div style="max-width: 100%; height: auto;">
-  <video style="width: 100%; height: auto;" controls>
-    <source src="assets/maze_solver.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-</div>
-
+https://github.com/user-attachments/assets/3ac53114-9fe5-49cf-9fce-b6fac2e37a01
 
 ## What this project does
 
